@@ -295,6 +295,9 @@ dialog::backdrop{background:rgba(20,18,40,.45)}
 .pn-edit{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 0;font-size:13px;color:var(--muted)}
 .pn-edit input{border:1px solid var(--line);border-radius:8px;padding:5px 10px;background:var(--surface);font-size:14px;width:140px}
 .pn-edit input:focus{outline:none;border-color:var(--accent)}
+.pn-edit[hidden]{display:none}
+.pn-edit .btn{padding:5px 12px;font-size:13px}
+.dir-hero .lead .edit-cat{margin-left:6px;vertical-align:middle}
 .pn-hint{font-size:12px}
 .dir-big{font-size:clamp(36px,6vw,52px);font-weight:600;letter-spacing:-.02em;line-height:1.1;margin:6px 0 4px}
 .dir-big.done{color:var(--paid)}
@@ -338,7 +341,7 @@ aside h2,.hero-payers h2,.hero-memo h2{margin-bottom:14px}
 .name-form[hidden]{display:none}
 .hero-memo{padding-top:6px;min-width:0;display:flex;flex-direction:column}
 .hero-memo h2{align-self:flex-start}
-.hero-memo textarea{width:100%;min-height:118px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:10px 12px;font-size:14px;line-height:1.6}
+.hero-memo textarea{width:100%;min-height:118px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:10px 12px;font-size:13px;line-height:1.6}
 .hero-memo textarea:focus{outline:none;border-color:var(--accent)}
 .memo-state{margin:4px 0 0;font-size:11px;color:var(--muted);min-height:14px}
 .chart-toggle{display:flex;gap:4px;margin-bottom:14px}
@@ -397,7 +400,7 @@ aside h2,.hero-payers h2,.hero-memo h2{margin-bottom:14px}
     <button data-v="direct" aria-pressed="false"><span class="pn">다이렉트</span> 정산</button>
     <button data-v="guide" aria-pressed="false">사용방법</button>
     <div class="couple-chip" id="coupleChip" hidden>
-      <span class="cc-l">커플 코드</span><b id="ccCode" title="길게 누르거나 드래그해서 복사할 수 있어요"></b>
+      <span class="cc-l">💑 커플 코드</span><b id="ccCode" title="길게 누르거나 드래그해서 복사할 수 있어요"></b>
       <button class="cc-btn ghost" id="ccLeave">코드 변경</button>
       <span class="cc-save" id="ccSave" aria-live="polite"></span>
     </div>
@@ -500,8 +503,8 @@ aside h2,.hero-payers h2,.hero-memo h2{margin-bottom:14px}
   <section id="viewDirect" hidden>
     <div class="dir-hero">
       <div>
-        <p class="lead"><span class="pn">다이렉트</span> 일괄 정산 때 낼 금액</p>
-        <div class="pn-edit"><label for="pnInput">업체 이름</label><input id="pnInput" placeholder="다이렉트" autocomplete="off" maxlength="20"><span class="pn-hint">다른 업체를 쓰면 이름을 바꿀 수 있어요</span></div>
+        <p class="lead"><span class="pn">다이렉트</span> 일괄 정산 때 낼 금액 <button class="edit-cat" id="pnEditBtn" title="업체명 수정">수정</button></p>
+        <div class="pn-edit" id="pnEditBox" hidden><input id="pnInput" placeholder="다이렉트" autocomplete="off" maxlength="20" aria-label="업체명"><button class="btn" id="pnSave">저장</button><button class="btn ghost" id="pnCancel">취소</button></div>
         <div class="dir-big num" id="dOwe">0원</div>
         <p class="note" id="dState"></p>
       </div>
@@ -582,7 +585,7 @@ aside h2,.hero-payers h2,.hero-memo h2{margin-bottom:14px}
     </div>
     <p class="note" style="text-align:center;margin-top:8px"><button class="linkbtn" id="reopenNotice">커플 코드 안내 팝업 다시 보기</button></p>
   </section>
-  <p class="sync" id="sync"></p>
+  <p class="sync" id="sync" hidden></p>
   <footer class="site-foot">
     <p>© 2026 이여름날. All rights reserved.</p>
     <p>이 트래커는 개인이 만든 제작물로 무단 복제 및 재배포를 금합니다.</p>
@@ -1025,8 +1028,12 @@ function renderChart(){
 }
 
 let memoTimer = null, nameAsked = false, nameAuto = false;
-$("pnInput").addEventListener("change", e=>{ const v = e.target.value.trim(); if (v !== (settings.plannerName||"") && store) store.saveSettings({...settings, plannerName:v}).catch(showSyncErr); });
-$("pnInput").addEventListener("keydown", e=>{ if (e.key==="Enter") e.target.blur(); });
+const pnClose = () => { $("pnEditBox").hidden = true; $("pnEditBtn").hidden = false; };
+const pnSaveFn = () => { const v = $("pnInput").value.trim(); pnClose(); if (v !== (settings.plannerName||"") && store) Promise.resolve(store.saveSettings({...settings, plannerName:v})).catch(showSyncErr); };
+$("pnEditBtn").onclick = () => { $("pnInput").value = settings.plannerName || ""; $("pnEditBox").hidden = false; $("pnEditBtn").hidden = true; $("pnInput").focus(); };
+$("pnSave").onclick = pnSaveFn;
+$("pnCancel").onclick = pnClose;
+$("pnInput").addEventListener("keydown", e=>{ if (e.key==="Enter") pnSaveFn(); if (e.key==="Escape") pnClose(); });
 $("memo").addEventListener("input", e=>{
   $("memoState").textContent = "입력 중…";
   clearTimeout(memoTimer);
@@ -1087,7 +1094,6 @@ function render(){
 
   // groups
   document.querySelectorAll(".pn").forEach(e=>{ e.textContent = PN(); });
-  if (document.activeElement !== $("pnInput")) $("pnInput").value = (settings.plannerName||"");
   renderDirect();
   renderChart();
   if (loaded && !settings.bride && !settings.groom && $("nameForm").hidden && !nameAsked){ nameAsked = true; nameAuto = true; showNameForm(true); }
@@ -1277,11 +1283,10 @@ function enterCouple(code){
   if (store && store.stop) store.stop();
   items = []; settings = {date:"", budget:0}; loaded = false; nameAsked = false; render();
   saveStatus("불러오는 중…");
-  $("sync").textContent = "커플 코드로 저장돼요. 같은 코드를 쓰는 사람과 실시간으로 공유돼요.";
   store = fbStore(code); store.start();
   if (!noticeShownOnce){ noticeShownOnce = true; maybeShowNotice(); }
 }
-function showSyncErr(e){ $("sync").textContent = "저장하지 못했어요 ("+(e&&e.code||"오류")+"). 편집 권한이 있는지 확인하세요."; }
+function showSyncErr(e){ saveStatus(errText(e), true); }
 
 /* ---------- header inputs ---------- */
 $("weddingDate").addEventListener("change", e=>{ store && store.saveSettings({...settings, date:e.target.value}).catch(showSyncErr); });
@@ -1460,7 +1465,7 @@ $("exportBtn").onclick = async () => {
   } catch(e){
     if (e && e.code === "declined") btn.textContent = "엑셀 내보내기";
     else if (e && (e.code === "unavailable" || e.code === "not_granted" || e.code === "capability_disabled" || e.code === "capability_removed")) { btn.hidden = true; }
-    else { btn.textContent = "다시 시도"; $("sync").textContent = "엑셀 파일을 만들지 못했어요" + (e && e.code ? " ("+e.code+")" : "") + ". 잠시 후 다시 시도해 주세요."; }
+    else { btn.textContent = "다시 시도"; saveStatus("엑셀 파일을 만들지 못했어요", true); }
   }
   btn.disabled = false;
   setTimeout(()=>{ if (btn.textContent !== "다시 시도") btn.textContent = "엑셀 내보내기"; }, 2500);
@@ -1573,7 +1578,7 @@ $("importFile").addEventListener("change", async e=>{
 $("impOk").onclick = async () => {
   if (!pendingImport || !store) return;
   const btn = $("impOk"); btn.disabled = true; btn.textContent = "불러오는 중…";
-  try { await store.replaceAll(pendingImport.list, pendingImport.settings); $("impDlg").close(); $("sync").textContent = "엑셀 내용을 불러왔어요."; }
+  try { await store.replaceAll(pendingImport.list, pendingImport.settings); $("impDlg").close(); }
   catch(err){ $("impErr").textContent = "불러오지 못했어요 ("+(err && err.code || "오류")+")."; }
   btn.disabled = false; btn.textContent = "덮어쓰기"; pendingImport = null;
 };
