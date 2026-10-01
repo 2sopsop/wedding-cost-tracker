@@ -251,14 +251,13 @@ dialog::backdrop{background:rgba(20,18,40,.45)}
 .ref-link:hover{text-decoration:underline}
 .ref-msg{font-size:12px;color:var(--paid);font-weight:600}
 .preview-bar{background:var(--warn-bg);color:var(--warn-ink);border-radius:10px;padding:8px 14px;font-size:13px;margin-bottom:12px}
-.couple-chip{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-8px 0 18px;font-size:13px}
+.couple-chip{display:flex;align-items:center;gap:6px 8px;flex-wrap:wrap;margin-left:auto;font-size:12px;padding:6px 0}
 .couple-chip[hidden]{display:none}
 .cc-l{color:var(--muted)}
-.couple-chip b{background:var(--pill-bg);color:var(--pill-ink);padding:3px 12px;border-radius:999px;font-size:14px}
-.cc-btn{border:0;background:var(--accent);color:#fff;border-radius:999px;padding:3px 12px;font-size:12px;cursor:pointer}
+.couple-chip b{background:var(--pill-bg);color:var(--pill-ink);padding:2px 10px;border-radius:999px;font-size:13px;user-select:all;-webkit-user-select:all}
+.cc-btn{border:0;border-radius:999px;padding:2px 10px;font-size:12px;cursor:pointer}
 .cc-btn.ghost{background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1px var(--line)}
-.cc-msg{font-size:12px;color:var(--paid)}
-.cc-save{margin-left:auto;font-size:12px;color:var(--muted)}
+.cc-save{font-size:12px;color:var(--muted);min-width:52px;text-align:right}
 .cc-save.err{color:var(--over);font-weight:600}
 .start-ref{margin:16px 0 0;background:var(--rose-soft);color:var(--rose);border-radius:12px;padding:10px 12px;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
 .start-ref b{background:var(--surface);padding:2px 10px;border-radius:8px}
@@ -288,9 +287,9 @@ dialog::backdrop{background:rgba(20,18,40,.45)}
 .btn.big{width:100%;padding:12px;font-size:15px}
 .code-input{width:100%;border:1px solid var(--line);border-radius:12px;padding:14px;font-size:18px;text-align:center;background:var(--bg)}
 .code-input:focus{outline:none;border-color:var(--accent)}
-.tabs{display:flex;gap:24px;margin-bottom:28px;border-bottom:1px solid var(--line)}
-.tabs button{border:0;background:none;padding:10px 2px;font-weight:600;font-size:15px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer}
-.tabs button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.tabs{display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:28px;border-bottom:1px solid var(--line)}
+.tabs button[data-v]{border:0;background:none;padding:10px 2px;font-weight:600;font-size:15px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer}
+.tabs button[data-v][aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
 .chip.DR{background:transparent;color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .dir-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,340px);gap:24px 48px;align-items:end;padding-bottom:24px;border-bottom:1px solid var(--line);margin-bottom:24px}
 .pn-edit{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 0;font-size:13px;color:var(--muted)}
@@ -299,7 +298,8 @@ dialog::backdrop{background:rgba(20,18,40,.45)}
 .pn-hint{font-size:12px}
 .dir-big{font-size:clamp(36px,6vw,52px);font-weight:600;letter-spacing:-.02em;line-height:1.1;margin:6px 0 4px}
 .dir-big.done{color:var(--paid)}
-#dPaid,#dPts,.ded{color:var(--txtamt)}
+#dPaid,#dPts,.ded,#fSpent{color:var(--txtamt)}
+.payer .role{color:var(--muted);font-weight:400;margin-right:2px}
 #addBtn,#exportBtn,#importBtn{padding:6px 14px;font-size:13px}
 .head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 #ptInput{width:100%;max-width:110px;text-align:right;border:1px solid var(--accent);border-radius:6px;padding:4px 8px;font-size:14px;background:var(--surface)}
@@ -390,17 +390,15 @@ aside h2,.hero-payers h2,.hero-memo h2{margin-bottom:14px}
     <span class="ref-msg" id="refMsg" aria-live="polite"></span>
     <a class="ref-link" href="https://cafe.naver.com/directwedding" target="_blank" rel="noopener">다이렉트 결혼준비 카페 가기 →</a>
   </aside>
-  <div class="couple-chip" id="coupleChip" hidden>
-    <span class="cc-l">💑 우리 커플 코드</span><b id="ccCode"></b>
-    <button class="cc-btn" id="ccCopy">복사</button>
-    <button class="cc-btn ghost" id="ccLeave">다른 코드로 들어가기</button>
-    <span class="cc-msg" id="ccMsg" aria-live="polite"></span>
-    <span class="cc-save" id="ccSave" aria-live="polite"></span>
-  </div>
   <nav class="tabs" aria-label="보기 전환">
     <button data-v="main" aria-pressed="true">전체 비용</button>
     <button data-v="direct" aria-pressed="false"><span class="pn">다이렉트</span> 정산</button>
     <button data-v="guide" aria-pressed="false">사용방법</button>
+    <div class="couple-chip" id="coupleChip" hidden>
+      <span class="cc-l">커플 코드</span><b id="ccCode" title="길게 누르거나 드래그해서 복사할 수 있어요"></b>
+      <button class="cc-btn ghost" id="ccLeave">코드 변경</button>
+      <span class="cc-save" id="ccSave" aria-live="polite"></span>
+    </div>
   </nav>
   <div id="viewMain">
   <header class="hero">
@@ -529,7 +527,7 @@ aside h2,.hero-payers h2,.hero-memo h2{margin-bottom:14px}
         <li><b>커플 코드는 카톡 '나와의 채팅'에 꼭 저장해 두세요.</b> 코드를 잃어버리면 내용을 되찾을 수 없어요.</li>
         <li><b>코드를 아는 사람은 누구나 내용을 볼 수 있어요.</b> 예비 신랑·신부 둘만 알고 있어야 해요.</li>
         <li>새 기기나 브라우저에서 처음 열 때는 <b>커플 코드 입력</b>을 눌러 코드를 다시 입력해 주세요. 한 번 입력하면 그 기기에서는 자동으로 기억해요.</li>
-        <li>코드는 화면 위 <b>💑 우리 커플 코드</b>에서 언제든 확인하고 복사할 수 있어요.</li>
+        <li>코드는 탭 오른쪽 <b>커플 코드</b>에서 언제든 확인할 수 있어요. 코드를 길게 누르면 복사돼요.</li>
         <li>인터넷이 연결되어 있어야 저장돼요. 끊겼을 때 입력한 내용은 다시 연결되면 저장돼요.</li>
         <li>두 사람이 <b>같은 시간에 동시에</b> 수정하면 나중에 저장한 쪽 내용으로 맞춰질 수 있어요.</li>
       </ul>
@@ -569,7 +567,7 @@ aside h2,.hero-payers h2,.hero-memo h2{margin-bottom:14px}
     <div class="g-sec">
       <h2>예비 신랑·신부와 함께 쓰기 & 백업</h2>
       <ul>
-        <li>처음 시작한 사람이 <b>💑 우리 커플 코드</b>를 복사해서 상대방에게 보내요.</li>
+        <li>처음 시작한 사람이 탭 오른쪽의 <b>커플 코드</b>를 상대방에게 보내요.</li>
         <li>상대방은 같은 링크를 열고 <b>커플 코드 입력</b>에 코드를 넣으면 끝! 이후로는 둘이 같은 가계부를 함께 써요.</li>
         <li><b>엑셀 내보내기:</b> 지금까지 입력한 내용을 엑셀 파일로 받아요. 백업용으로 좋아요.</li>
         <li><b>엑셀 불러오기:</b> 내보낸 파일 내용으로 가계부를 바꿔요. 이전 백업으로 되돌릴 때 써요.</li>
@@ -839,12 +837,13 @@ async function renameCat(oldN, newN){
   renaming = false; render();
 }
 function payerNames(){ return [...new Set([settings.bride, settings.groom, ...(settings.payers||[]), ...items.map(i=>i.payer)].filter(Boolean))]; }
+function payerLabelHtml(p){ const role = p === settings.bride ? "신부👰" : p === settings.groom ? "신랑🤵" : ""; return (role ? `<span class="role">${role}</span> ` : "") + esc(p); }
 function payerLabel(p){ return p === settings.bride ? "신부👰 "+p : p === settings.groom ? "신랑🤵 "+p : p; }
 
 let view = "main";
-document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+document.querySelectorAll(".tabs button[data-v]").forEach(b=>b.onclick=()=>{
   view = b.dataset.v;
-  document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
+  document.querySelectorAll(".tabs button[data-v]").forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
   $("viewMain").hidden = view !== "main"; $("viewDirect").hidden = view !== "direct"; $("viewGuide").hidden = view !== "guide";
   window.scrollTo(0,0);
 });
@@ -1151,7 +1150,7 @@ function render(){
   const pn = payerNames();
   const pt = pn.map(p=>[p, items.filter(i=>i.payer===p).reduce((s,i)=>s+paidAmt(i),0)]);
   const maxP = Math.max(1, ...pt.map(x=>x[1]));
-  $("payers").innerHTML = pt.length ? pt.map(([p,v])=>`<button class="payer click" data-p="${esc(p)}" aria-pressed="${p===payerFilter}" title="${esc(p)} 결제 항목만 보기"><div class="l"><b>${esc(payerLabel(p))}</b><span class="num">${man(v)}</span></div><div class="track"><div class="fill" style="width:${v/maxP*100}%"></div></div></button>`).join("")
+  $("payers").innerHTML = pt.length ? pt.map(([p,v])=>`<button class="payer click" data-p="${esc(p)}" aria-pressed="${p===payerFilter}" title="${esc(p)} 결제 항목만 보기"><div class="l"><b>${payerLabelHtml(p)}</b><span class="num">${man(v)}</span></div><div class="track"><div class="fill" style="width:${v/maxP*100}%"></div></div></button>`).join("")
     : '<p class="note">항목에 결제자와 낸 금액을 넣으면 여기에 합계가 보여요.</p>';
   $("payers").querySelectorAll(".payer.click").forEach(b=>b.onclick=()=>{ payerFilter = payerFilter===b.dataset.p ? "all" : b.dataset.p; render(); document.getElementById("groups").scrollIntoView({block:"start"}); });
 
@@ -1639,7 +1638,6 @@ const tryJoin = async () => {
 };
 $("joinGo").onclick = tryJoin;
 $("joinInput").addEventListener("keydown", e=>{ if (e.key === "Enter") tryJoin(); });
-$("ccCopy").onclick = async () => { $("ccMsg").textContent = (await copyText(coupleCode)) ? "복사됐어요" : ""; setTimeout(()=>$("ccMsg").textContent="", 2000); };
 $("ccLeave").onclick = () => { try { localStorage.removeItem(CODE_KEY); } catch(e){} coupleCode = null; showStart(); };
 
 render();
