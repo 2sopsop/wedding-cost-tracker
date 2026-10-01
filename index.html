@@ -1019,7 +1019,7 @@ function renderChart(){
     : `<li style="display:block"><p class="note">${key==="budget"?"예산":"가격"}을 입력하면 카테고리별 비중이 보여요.</p></li>`;
 }
 
-let memoTimer = null, nameAsked = false;
+let memoTimer = null, nameAsked = false, nameAuto = false;
 $("pnInput").addEventListener("change", e=>{ const v = e.target.value.trim(); if (v !== (settings.plannerName||"") && store) store.saveSettings({...settings, plannerName:v}).catch(showSyncErr); });
 $("pnInput").addEventListener("keydown", e=>{ if (e.key==="Enter") e.target.blur(); });
 $("memo").addEventListener("input", e=>{
@@ -1085,7 +1085,8 @@ function render(){
   if (document.activeElement !== $("pnInput")) $("pnInput").value = (settings.plannerName||"");
   renderDirect();
   renderChart();
-  if (loaded && !settings.bride && !settings.groom && $("nameForm").hidden && !nameAsked){ nameAsked = true; showNameForm(true); }
+  if (loaded && !settings.bride && !settings.groom && $("nameForm").hidden && !nameAsked){ nameAsked = true; nameAuto = true; showNameForm(true); }
+  if (nameAuto && (settings.bride || settings.groom) && !$("nameForm").hidden && !$("nameForm").contains(document.activeElement)){ nameAuto = false; showNameForm(false); }
   if (document.activeElement !== $("memo") && !memoTimer) $("memo").value = settings.memo || "";
   const g = $("groups");
   const prevCat = g.querySelector(".cat-input");
@@ -1483,8 +1484,8 @@ function showNameForm(show){
   $("nameForm").hidden = !show;
   if (show){ $("nBride").value = settings.bride || ""; $("nGroom").value = settings.groom || ""; }
 }
-$("nameEdit").onclick = () => showNameForm($("nameForm").hidden);
-$("nameCancel").onclick = () => showNameForm(false);
+$("nameEdit").onclick = () => { nameAuto = false; showNameForm($("nameForm").hidden); };
+$("nameCancel").onclick = () => { nameAuto = false; showNameForm(false); };
 $("nameSave").onclick = async () => {
   const bride = $("nBride").value.trim(), groom = $("nGroom").value.trim();
   const rename = (from, to) => from && to && from !== to ? items.filter(i=>i.payer===from) : [];
