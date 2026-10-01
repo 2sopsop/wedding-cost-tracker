@@ -291,7 +291,7 @@ dialog::backdrop{background:rgba(20,18,40,.45)}
 .tabs button[data-v]{border:0;background:none;padding:10px 2px;font-weight:600;font-size:15px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer}
 .tabs button[data-v][aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
 .chip.DR{background:transparent;color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
-.dir-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,340px);gap:24px 48px;align-items:end;padding-bottom:24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+.dir-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,340px);gap:24px 48px;align-items:start;padding-bottom:24px;border-bottom:1px solid var(--line);margin-bottom:24px}
 .pn-edit{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 0;font-size:13px;color:var(--muted)}
 .pn-edit input{border:1px solid var(--line);border-radius:8px;padding:5px 10px;background:var(--surface);font-size:14px;width:140px}
 .pn-edit input:focus{outline:none;border-color:var(--accent)}
@@ -299,6 +299,7 @@ dialog::backdrop{background:rgba(20,18,40,.45)}
 .pn-edit .btn{padding:5px 12px;font-size:13px}
 .dir-hero .lead .edit-cat{margin-left:6px;vertical-align:middle}
 .pn-hint{font-size:12px}
+.dir-fig{margin-top:4px!important}
 .dir-big{font-size:clamp(36px,6vw,52px);font-weight:600;letter-spacing:-.02em;line-height:1.1;margin:6px 0 4px}
 .dir-big.done{color:var(--paid)}
 #dPaid,#dPts,.ded,#fSpent{color:var(--txtamt)}
@@ -503,8 +504,7 @@ aside h2,.hero-payers h2,.hero-memo h2{margin-bottom:14px}
   <section id="viewDirect" hidden>
     <div class="dir-hero">
       <div>
-        <p class="lead"><span class="pn">다이렉트</span> 일괄 정산 때 낼 금액 <button class="edit-cat" id="pnEditBtn" title="업체명 수정">수정</button></p>
-        <div class="pn-edit" id="pnEditBox" hidden><input id="pnInput" placeholder="다이렉트" autocomplete="off" maxlength="20" aria-label="업체명"><button class="btn" id="pnSave">저장</button><button class="btn ghost" id="pnCancel">취소</button></div>
+        <p class="lead"><span class="pn">다이렉트</span> 일괄 정산 때 낼 금액</p>
         <div class="dir-big num" id="dOwe">0원</div>
         <p class="note" id="dState"></p>
       </div>
@@ -566,8 +566,7 @@ aside h2,.hero-payers h2,.hero-memo h2{margin-bottom:14px}
         <li>플래너를 통해 계약하고 나중에 한 번에 정산하는 항목은 수정 창에서 <b>'<span class="pn">다이렉트</span> 일괄 정산 대상'</b>에 체크하세요. 정산 탭에 모여요.</li>
         <li>미리 낸 계약금은 <b>'정산 때 차감되는 선납금'</b>도 체크하면 정산 금액에서 자동으로 빠져요.</li>
         <li>카페·블로그 활동으로 받은 포인트는 정산 탭의 <b>포인트 활동</b> 행을 눌러 입력하면 차감돼요.</li>
-        <li>다른 플래너 업체를 쓴다면 정산 탭 위 <b>업체 이름</b>에서 바꿀 수 있어요.</li>
-      </ul>
+              </ul>
     </div>
     <div class="g-sec">
       <h2>예비 신랑·신부와 함께 쓰기 & 백업</h2>
@@ -823,7 +822,7 @@ function normTiming(t){ t = String(t||"").trim(); const info = timingInfo(t); re
 function statusCls(s){ return s==="O" ? "O" : s==="△" ? "T" : "X"; }
 function statusText(s){ return s==="O" ? "확정" : s==="△" ? "진행 중" : "아직"; }
 const LAST_CATS = ["기타"];
-const PN = () => ((settings.plannerName||"").trim() || "다이렉트");
+const PN = () => "다이렉트";
 function allCats(){
   const base = (settings.cats && settings.cats.length) ? [...settings.cats] : [...DEFAULT_CATS.filter(c=>!LAST_CATS.includes(c)), ...LAST_CATS];
   const extra = [...new Set(items.map(i=>i.category||"기타"))].filter(c=>!base.includes(c));
@@ -1028,12 +1027,7 @@ function renderChart(){
 }
 
 let memoTimer = null, nameAsked = false, nameAuto = false;
-const pnClose = () => { $("pnEditBox").hidden = true; $("pnEditBtn").hidden = false; };
-const pnSaveFn = () => { const v = $("pnInput").value.trim(); pnClose(); if (v !== (settings.plannerName||"") && store) Promise.resolve(store.saveSettings({...settings, plannerName:v})).catch(showSyncErr); };
-$("pnEditBtn").onclick = () => { $("pnInput").value = settings.plannerName || ""; $("pnEditBox").hidden = false; $("pnEditBtn").hidden = true; $("pnInput").focus(); };
-$("pnSave").onclick = pnSaveFn;
-$("pnCancel").onclick = pnClose;
-$("pnInput").addEventListener("keydown", e=>{ if (e.key==="Enter") pnSaveFn(); if (e.key==="Escape") pnClose(); });
+
 $("memo").addEventListener("input", e=>{
   $("memoState").textContent = "입력 중…";
   clearTimeout(memoTimer);
